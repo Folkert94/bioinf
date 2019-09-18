@@ -1,3 +1,6 @@
+# Code Project group T20: Carlos, Folkert, Jurriaan, Lianne
+# Edited code for Fundamentals of Bioinformatics Project
+
 #!/usr/bin/python
 
 # This script runs the local version of (PSI-)BLAST.
