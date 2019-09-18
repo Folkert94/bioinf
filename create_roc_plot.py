@@ -22,12 +22,12 @@ def parse_blast_results(filename):
         for line in f:
             line = line.rstrip()
             arr = line.split("\t")
-    
+
             if len(arr) != 3:
                 print("Warning: the following line does not have three elements separated by a tab:\n", line)
             elif arr[0] == arr[1]:
                 print("Warning: Comparing protein to itself:", arr[0])
-                
+
             key = (arr[0], arr[1])
             if arr[2] == "NA":    # Substitute protein pairs whose e-value is
                 value = 1e6       # not available with an e-value of 1 million
@@ -51,13 +51,13 @@ def parse_benchmark_results(filename):
         for line in f:
             line = line.rstrip()
             arr = line.split("\t")
-    
+
             if len(arr) < 3:
                 print("Warning: the following line does not have three elements separated by a tab:\n", line)
             elif arr[0] == arr[1]:
                 print("Warning: Comparing protein to itself:", arr[0])
 
-            # Benchmark classifications are symmetric, so add both possible keys:                
+            # Benchmark classifications are symmetric, so add both possible keys:
             key1 = (arr[0],arr[1])
             key2 = (arr[1],arr[0])
             value = arr[2]
@@ -74,7 +74,7 @@ def integrate(x, y):
     :param y: a list of y-coordinates
     :return: a float with the surface area under the curve described by x and y
     """
-    
+
     auc = 0.
     last_x = x[0]
     last_y = y[0]
@@ -103,7 +103,7 @@ def roc_plot(blast_evalues, benchmark_dict, png_filename):
 
     x = [0] # array of the ROC plot's x-coordinates: False Positive Rate = FP/(FP+TN)
     y = [0] # array of the ROC plot's y-coordinates: True  Positive Rate = TP/(TP+FN)
-    
+
     last_evalue = -1
     evalues = [(v, k) for k, v in blast_evalues.items()] # List of tuples consisting of (evalue, protein_pair)
     sorted_evalues = sorted(evalues)
@@ -113,8 +113,8 @@ def roc_plot(blast_evalues, benchmark_dict, png_filename):
         ### START CODING HERE ###
         #########################
         # Iterate through the protein pairs, in order of ascending e-value
-        # Determine whether it is 
-        #    different -> actual negative, thus a false positive (x) 
+        # Determine whether it is
+        #    different -> actual negative, thus a false positive (x)
         #    similar   -> actual positive, thus a true positive (y)
         # Increase the respective value and add a new coordinate for every unique e-value
         # If the e-value is the same as the last one, only increase x or y of the last coordinate
@@ -150,7 +150,7 @@ def main(blast_results_file, benchmark_results_file, png_file):
     # Parse the input files and retrieve every protein pair's e-value and benchmark classification.
     blast_evalues = parse_blast_results(blast_results_file)
     benchmark_results = parse_benchmark_results(benchmark_results_file)
-    
+
     # Draw and save the ROC plot
     roc_plot(blast_evalues, benchmark_results, png_file)
 
@@ -162,7 +162,7 @@ if __name__ == "__main__":
     parser.add_argument("-o", "--output_png", help="output png file", required=True)
 
     args = parser.parse_args()
-    
+
     blast_file = args.input_blast_results
     benchmark_file = args.input_benchmark_results
     png_file = args.output_png
