@@ -134,9 +134,9 @@ def assign_homology(scop_dict, protein_ids_pdbs, pairs):
     # Did add them to the dictionary.
 
     # PIPELINE
-    # IF pair not in database N/A
-    # IF pair similar OR ambiguous put in dict
-    # IF pair different -> put in dict or overwrite N/A
+    # IF pair not in database -> N/A
+    # IF pair similar OR ambiguous -> dict
+    # ELSE pair different -> dict
 
     for pair in pairs:
         # Match UniprotID to PDB ID
