@@ -133,6 +133,10 @@ def assign_homology(scop_dict, protein_ids_pdbs, pairs):
     # We ignore all the pairs that are not in the database as proposed by the assignment;
     # Did add them to the dictionary.
 
+    # PIPELINE
+    # IF pair not in database N/A
+    # IF pair similar OR ambiguous put in dict
+    # IF pair different -> put in dict or overwrite N/A
 
     for pair in pairs:
         # Match UniprotID to PDB ID
@@ -150,15 +154,15 @@ def assign_homology(scop_dict, protein_ids_pdbs, pairs):
             try:
                 combi_1 = scop_dict[pair_combination[0].lower()]
             except:
-                # print("pdb_id {0} not found".format(pair_combination[0]))
-                scop_homology[(pair[0], pair[1])] = "not found"
+                if (pair[0], pair[1]) not in scop_homology:
+                    scop_homology[(pair[0], pair[1])] = "N/A"
                 continue
 
             try:
                 combi_2 = scop_dict[pair_combination[1].lower()]
             except:
-                # print("pdb_id {0} not found".format(pair_combination[1]))
-                scop_homology[(pair[0], pair[1])] = "not found"
+                if (pair[0], pair[1]) not in scop_homology:
+                    scop_homology[(pair[0], pair[1])] = "N/A"
                 continue
 
             try:
@@ -166,15 +170,18 @@ def assign_homology(scop_dict, protein_ids_pdbs, pairs):
                     scop_homology[(pair[0], pair[1])] = "similar"
                 if combi_1["fold"] is combi_2["fold"] and combi_1["superfamily"] is not combi_2["superfamily"]:
                     scop_homology[(pair[0], pair[1])] = "ambiguous"
+                    pass
                 else:
-                    scop_homology[(pair[0], pair[1])] = "N/A"
+                    if (pair[0], pair[1]) not in scop_homology or scop_homology[(pair[0], pair[1])] == "N/A":
+                        scop_homology[(pair[0], pair[1])] = "different"
+                    pass
             except:
                 pass
 
     ########################
     ### END CODING HERE ####
     ########################
-    # print(scop_homology)
+
     return scop_homology
 
 

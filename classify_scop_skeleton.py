@@ -151,36 +151,31 @@ def assign_homology(scop_dict, protein_ids_pdbs, pairs):
                 combi_1 = scop_dict[pair_combination[0].lower()]
             except:
                 # print("pdb_id {0} not found".format(pair_combination[0]))
-                scop_homology[(pair[0], pair[1])] = "not found"
+                # scop_homology[(pair[0], pair[1])] = "not found"
                 continue
 
             try:
                 combi_2 = scop_dict[pair_combination[1].lower()]
             except:
                 # print("pdb_id {0} not found".format(pair_combination[1]))
-                scop_homology[(pair[0], pair[1])] = "not found"
+                # scop_homology[(pair[0], pair[1])] = "not found"
                 continue
 
             try:
                 if combi_1["superfamily"] is combi_2["superfamily"] and combi_1["class"] is combi_2["class"] and combi_1["fold"] is combi_2["fold"]:
-                    # print("{0} {1} similar".format(pair[0], pair[1]))
+                    print("found!!!")
                     scop_homology[(pair[0], pair[1])] = "similar"
                 if combi_1["fold"] is combi_2["fold"] and combi_1["superfamily"] is not combi_2["superfamily"]:
-                    # print("{0} {1} ambiguous".format(pair[0], pair[1]))
                     scop_homology[(pair[0], pair[1])] = "ambiguous"
                 else:
-                    # print("{0} {1} different".format(pair[0], pair[1]))
-                    scop_homology[(pair[0], pair[1])] = "different"
-                # else:
-                #     print("{0} AND {1} ARE UNREAL".format(pair_combination[0], pair_combination[1]))
-                # print(combi_1["class"], combi_2["class"])
+                    scop_homology[(pair[0], pair[1])] = "N/A"
             except:
                 pass
 
     ########################
     ### END CODING HERE ####
     ########################
-    print(scop_homology)
+    # print(scop_homology)
     return scop_homology
 
 
@@ -189,7 +184,6 @@ def write_results(filename, scop_homology):
     Writes in an output file the all of the protein pairs and their similarity/dissimilarity.
     :param output_filename: the name of the output file.
     :param scop_homology: dictionary (keys: protein pairs as tuples; values: one of the value - different/similar/ambiguous)
-
     """
     with open(filename, "w") as f:
         for (p1, p2), value in scop_homology.items():
