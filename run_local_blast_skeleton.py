@@ -1,6 +1,3 @@
-# Code Project group T20: Carlos, Folkert, Jurriaan, Lianne
-# Edited code for Fundamentals of Bioinformatics Project
-
 #!/usr/bin/python
 
 # This script runs the local version of (PSI-)BLAST.
@@ -15,7 +12,7 @@ matplotlib.use('AGG')
 import pylab
 
 
-def blast(db, query, query_folder="./queries/", psiblast=False):
+def blast(db, query, evalue, query_folder="./queries/", psiblast=False):
     """
     This function executes blast or psi-blast for the given query and db.
     :param db: database filename
@@ -33,8 +30,8 @@ def blast(db, query, query_folder="./queries/", psiblast=False):
         # Note that it is is easier to parse the output if it is in tabular format.
         # For that use can use the option -outfmt '6 qacc sacc evalue'. (see https://www.ncbi.nlm.nih.gov/books/NBK279682/ )
         # To avoid the warning about composition based statistics, disable them with -comp_based_stats 0
-        print("Running PSI")
-        cmd = "psiblast -query {0}{1}.fasta -db {2} -outfmt '6 qacc sacc evalue' -num_iterations 3".format(query_folder, query, db)
+        print("yeah")
+        cmd = "psiblast -query {0}{1}.fasta -db {2} -outfmt '6 qacc sacc evalue' -num_iterations 10 -evalue {3}".format(query_folder, query, db, evalue)
         ##########################
         ###  END CODING HERE  ####
         ##########################
@@ -45,7 +42,7 @@ def blast(db, query, query_folder="./queries/", psiblast=False):
         ##########################
         # Define the variable 'cmd' as a string with the command for PSI-BLASTing 'query' against
         # the specified database 'db'.
-        cmd = "blastp -query {0}{1}.fasta -db {2} -outfmt '6 qacc sacc evalue'".format(query_folder, query, db)
+        cmd = "blastp -query {0}{1}.fasta -db {2} -outfmt '6 qacc sacc evalue' -evalue {3}".format(query_folder, query, db, evalue)
 
         ##########################
         ###  END CODING HERE  ####
@@ -138,33 +135,37 @@ def plot_evalue_distribution(blast_dict, png_filename, evalue=100000):
 
 
 def main(uniprot_id_file, query_folder, db, psiblast, output_filename, output_png):
-    # The blast_dict dictionary will be used to store protein pair and the corresponding e-value.
-    # Keys for blast_dict are the combination of query and subject/hit, e.g.:
-    # key             = (query, subject)
-    # blast_dict[key] = e_value
-    print(psiblast)
-    blast_dict = {}
-    # uniprot_id_list is a list to store all UniProt IDs contained in uniprot_id_file.
-    uniprot_id_list = []
-    uniprot_ids = open(uniprot_id_file)
-    for line in uniprot_ids:
-        query = line.strip()
-        ##########################
-        ### START CODING HERE ####
-        ##########################
-        # Run (PSI-)BLAST for all query proteins.
-        # Store all the uniprot IDs in the uniprot_id_list.
-        # Parse and store the blast result in the blast_dict.
-        blast_result = blast(db, query, psiblast=psiblast)
-        uniprot_id_list.append(query)
-        parse_blast_result(blast_result, blast_dict)
+    evalue = np.linspace(0.01, 100, 100)
 
-        ##########################
-        ###  END CODING HERE  ####
-        ##########################
-    uniprot_ids.close()
-    write_output(uniprot_id_list, output_filename, blast_dict)
-    plot_evalue_distribution(blast_dict, output_png)
+    for i in range(100):
+        # The blast_dict dictionary will be used to store protein pair and the corresponding e-value.
+        # Keys for blast_dict are the combination of query and subject/hit, e.g.:
+        # key             = (query, subject)
+        # blast_dict[key] = e_value
+        blast_dict = {}
+        # uniprot_id_list is a list to store all UniProt IDs contained in uniprot_id_file.
+        uniprot_id_list = []
+        print("Running blast for e-value {0}.".format(evalue[i]))
+        uniprot_ids = open(uniprot_id_file)
+        for line in uniprot_ids:
+            query = line.strip()
+            ##########################
+            ### START CODING HERE ####
+            ##########################
+            # Run (PSI-)BLAST for all query proteins.
+            # Store all the uniprot IDs in the uniprot_id_list.
+            # Parse and store the blast result in the blast_dict.
+            blast_result = blast(db, query, evalue[i])
+            uniprot_id_list.append(query)
+            parse_blast_result(blast_result, blast_dict)
+
+            ##########################
+            ###  END CODING HERE  ####
+            ##########################
+        output_filename1 = "{0}{1}".format(output_filename,i)
+        uniprot_ids.close()
+        write_output(uniprot_id_list, output_filename1, blast_dict)
+        # plot_evalue_distribution(blast_dict, "{0}{1}.png".format(output_png, i), evalue)
 
 
 if __name__ == "__main__":

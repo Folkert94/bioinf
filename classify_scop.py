@@ -70,6 +70,9 @@ def check_similarity_for_protein_pair(prot1_scop, prot2_scop):
     ##########################
     ### START CODING HERE ####
     ##########################
+
+
+
     pass
 
 
@@ -167,6 +170,9 @@ def assign_homology(scop_dict, protein_ids_pdbs, pairs):
                 if (pair[0], pair[1]) not in scop_homology:
                     scop_homology[(pair[0], pair[1])] = "N/A"
                 continue
+
+    # TO DO
+    # THIS SHOULD BE IN check_similarity_for_protein_pair(prot1_scop, prot2_scop):
 
             try:
                 if combi_1["superfamily"] is combi_2["superfamily"] and combi_1["class"] is combi_2["class"] and combi_1["fold"] is combi_2["fold"]:
