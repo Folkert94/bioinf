@@ -122,10 +122,10 @@ def roc_plot(blast_evalues, benchmark_dict, png_filename):
         # Ignore entries in the benchmark_dict classified as "ambiguous" and decide how to handle blast NA results
         if evalue > last_evalue:
             x.append(x[-1])
-            y.append(x[-1])
-        if evalue < 10 and benchmark_dict[protein_pair] == "different":
+            y.append(y[-1])
+        if evalue <= 10 and benchmark_dict[protein_pair] == "different":
             x[-1] = x[-1] + 1
-        if evalue < 10 and benchmark_dict[protein_pair] == "similar":
+        if evalue <= 10 and benchmark_dict[protein_pair] == "similar":
             y[-1] = y[-1] + 1
             #########################
             ###  END CODING HERE  ###

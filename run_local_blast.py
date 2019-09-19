@@ -164,7 +164,7 @@ def main(uniprot_id_file, query_folder, db, psiblast, output_filename, output_pn
         ##########################
     uniprot_ids.close()
     write_output(uniprot_id_list, output_filename, blast_dict)
-    plot_evalue_distribution(blast_dict, output_png)
+    plot_evalue_distribution(blast_dict, output_png, evalue=10)
 
 
 if __name__ == "__main__":
