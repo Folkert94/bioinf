@@ -82,6 +82,7 @@ def integrate(x, y):
         #########################
         ### START CODING HERE ###
         #########################
+        auc += numpy.trapz([last_y, cur_y], [last_x, cur_x])
 
         #########################
         ###  END CODING HERE  ###
@@ -119,12 +120,17 @@ def roc_plot(blast_evalues, benchmark_dict, png_filename):
         # Increase the respective value and add a new coordinate for every unique e-value
         # If the e-value is the same as the last one, only increase x or y of the last coordinate
         # Ignore entries in the benchmark_dict classified as "ambiguous" and decide how to handle blast NA results
-
-        #########################
-        ###  END CODING HERE  ###
-        #########################
-        last_evalue = evalue
-
+        if evalue > last_evalue:
+            x.append(x[-1])
+            y.append(x[-1])
+        if evalue < 10 and benchmark_dict[protein_pair] == "different":
+            x[-1] = x[-1] + 1
+        if evalue < 10 and benchmark_dict[protein_pair] == "similar":
+            y[-1] = y[-1] + 1
+            #########################
+            ###  END CODING HERE  ###
+            #########################
+            last_evalue = evalue
     # In order to get the rates for every coordinate we divide by the total number (last entry)
     x = numpy.array(x) / float(x[-1])
     y = numpy.array(y) / float(y[-1])

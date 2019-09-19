@@ -142,7 +142,7 @@ def main(uniprot_id_file, query_folder, db, psiblast, output_filename, output_pn
     # Keys for blast_dict are the combination of query and subject/hit, e.g.:
     # key             = (query, subject)
     # blast_dict[key] = e_value
-    print(psiblast)
+
     blast_dict = {}
     # uniprot_id_list is a list to store all UniProt IDs contained in uniprot_id_file.
     uniprot_id_list = []
