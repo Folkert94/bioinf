@@ -92,7 +92,7 @@ def integrate(x, y):
     return auc
 
 
-def roc_plot(blast_evalues, benchmark_dict, png_filename, evalue_blast, threshold):
+def roc_plot(blast_evalues, benchmark_dict, png_filename, evalue_blast, threshold, clr):
     """
     Draw the ROC plot for a given set of e-values and corresponding benchmark classifications.
 
@@ -139,7 +139,7 @@ def roc_plot(blast_evalues, benchmark_dict, png_filename, evalue_blast, threshol
     auc = integrate(x, y)
 
     ### Draw the plot and write it to a file
-    pylab.plot(x, y, label="BLAST eval={0}, auc={1:.3f}".format(evalue_blast, auc))
+    pylab.plot(x, y, label="BLAST eval={0}, auc={1:.3f}".format(evalue_blast, auc), color=clr)
 
 
 
@@ -150,7 +150,7 @@ def roc_plot(blast_evalues, benchmark_dict, png_filename, evalue_blast, threshol
     return auc
 
 
-def roc_plot_psi(blast_evalues, benchmark_dict, png_filename, evalue_blast, threshold):
+def roc_plot_psi(blast_evalues, benchmark_dict, png_filename, evalue_blast, threshold, clr):
     """
     Draw the ROC plot for a given set of e-values and corresponding benchmark classifications.
 
@@ -197,7 +197,7 @@ def roc_plot_psi(blast_evalues, benchmark_dict, png_filename, evalue_blast, thre
     auc = integrate(x, y)
 
     ### Draw the plot and write it to a file
-    pylab.plot(x, y, label="PSIBLAST eval={0}, auc={1:.3f}".format(evalue_blast, auc), linestyle="dashed")
+    pylab.plot(x, y, label="PSIBLAST eval={0}, auc={1:.3f}".format(evalue_blast, auc), linestyle="dashed", color=clr)
 
 
 
@@ -215,7 +215,7 @@ def main(blast_results_map, benchmark_results_file, png_file):
     pylab.ylabel('True Positive Rate')
     pylab.title('Plots BLAST&PSI-Blast')
 
-
+    colors = ['r', 'b', 'g']
     evalues = [1.0, 10.0, 100.0]
     auc_list = []
     for i in range(len(evalues)):
@@ -225,7 +225,7 @@ def main(blast_results_map, benchmark_results_file, png_file):
         benchmark_results = parse_benchmark_results(benchmark_results_file)
 
         # Draw and save the ROC plot
-        roc_plot(blast_evalues, benchmark_results, png_file, evalue_blast, evalues[i])
+        roc_plot(blast_evalues, benchmark_results, png_file, evalue_blast, evalues[i], colors[i])
 
     for i in range(len(evalues)):
         evalue_psiblast = evalues[i]
@@ -234,7 +234,7 @@ def main(blast_results_map, benchmark_results_file, png_file):
         benchmark_results = parse_benchmark_results(benchmark_results_file)
 
         # Draw and save the ROC plot
-        roc_plot_psi(blast_evalues, benchmark_results, png_file, evalue_psiblast, evalues[i])
+        roc_plot_psi(blast_evalues, benchmark_results, png_file, evalue_psiblast, evalues[i], colors[i])
 
 
 
