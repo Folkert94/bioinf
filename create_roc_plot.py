@@ -139,7 +139,65 @@ def roc_plot(blast_evalues, benchmark_dict, png_filename, evalue_blast, threshol
     auc = integrate(x, y)
 
     ### Draw the plot and write it to a file
-    pylab.plot(x, y, label="eval={0}, auc={1:.3f}".format(evalue_blast, auc))
+    pylab.plot(x, y, label="BLAST eval={0}, auc={1:.3f}".format(evalue_blast, auc))
+
+
+
+    ### Write coordinates to a file
+    with open(png_filename.split('.')[0] + '_xy.tsv','w') as f:
+        for a,b in zip(x,y):
+            f.write(str(a) + '\t' + str(b) + '\n')
+    return auc
+
+
+def roc_plot_psi(blast_evalues, benchmark_dict, png_filename, evalue_blast, threshold):
+    """
+    Draw the ROC plot for a given set of e-values and corresponding benchmark classifications.
+
+    :param blast_evalues: the dictionary produced by parse_blast_results()
+    :param benchmark_dict: the dictionary produced by parse_benchmark_results()
+    """
+
+    ### Create the lists of coordinates
+
+    x = [0] # array of the ROC plot's x-coordinates: False Positive Rate = FP/(FP+TN)
+    y = [0] # array of the ROC plot's y-coordinates: True  Positive Rate = TP/(TP+FN)
+
+    last_evalue = -1
+    evalues = [(v, k) for k, v in blast_evalues.items()] # List of tuples consisting of (evalue, protein_pair)
+    sorted_evalues = sorted(evalues)
+    for evalue, protein_pair in sorted_evalues:
+
+        #########################
+        ### START CODING HERE ###
+        #########################
+        # Iterate through the protein pairs, in order of ascending e-value
+        # Determine whether it is
+        #    different -> actual negative, thus a false positive (x)
+        #    similar   -> actual positive, thus a true positive (y)
+        # Increase the respective value and add a new coordinate for every unique e-value
+        # If the e-value is the same as the last one, only increase x or y of the last coordinate
+        # Ignore entries in the benchmark_dict classified as "ambiguous" and decide how to handle blast NA results
+        if evalue > last_evalue:
+            x.append(x[-1])
+            y.append(y[-1])
+        if evalue <= threshold and benchmark_dict[protein_pair] == "different":
+            x[-1] = x[-1] + 1
+        if evalue <= threshold and benchmark_dict[protein_pair] == "similar":
+            y[-1] = y[-1] + 1
+            #########################
+            ###  END CODING HERE  ###
+            #########################
+            last_evalue = evalue
+    # In order to get the rates for every coordinate we divide by the total number (last entry)
+    x = numpy.array(x) / float(x[-1])
+    y = numpy.array(y) / float(y[-1])
+
+    ### Figure out the AUC
+    auc = integrate(x, y)
+
+    ### Draw the plot and write it to a file
+    pylab.plot(x, y, label="PSIBLAST eval={0}, auc={1:.3f}".format(evalue_blast, auc), linestyle="dashed")
 
 
 
@@ -155,29 +213,47 @@ def main(blast_results_map, benchmark_results_file, png_file):
     pylab.plot([0,1],[0,1],'--k')
     pylab.xlabel('False Positive Rate')
     pylab.ylabel('True Positive Rate')
-    pylab.title('Plots BLAST')
+    pylab.title('Plots BLAST&PSI-Blast')
 
 
-    evalues = [0.001, 0.01, 0.1, 1.0, 10.0, 100.0, 1000.0, 10000.0]
+    evalues = [1.0, 10.0, 100.0]
     auc_list = []
-    for i in range(8):
+    for i in range(len(evalues)):
         evalue_blast = evalues[i]
         # Parse the input files and retrieve every protein pair's e-value and benchmark classification.
-        blast_evalues = parse_blast_results("{0}/{0}{1}".format(blast_results_map, i))
+        blast_evalues = parse_blast_results("{0}/{0}{1}".format(blast_results_map, i + 3))
         benchmark_results = parse_benchmark_results(benchmark_results_file)
 
         # Draw and save the ROC plot
-        auc_list.append(roc_plot(blast_evalues, benchmark_results, png_file, evalue_blast, evalues[i]))
+        roc_plot(blast_evalues, benchmark_results, png_file, evalue_blast, evalues[i])
+
+    for i in range(len(evalues)):
+        evalue_psiblast = evalues[i]
+        # Parse the input files and retrieve every protein pair's e-value and benchmark classification.
+        blast_evalues = parse_blast_results("output_psiblast/output_psiblast{0}".format(i + 3))
+        benchmark_results = parse_benchmark_results(benchmark_results_file)
+
+        # Draw and save the ROC plot
+        roc_plot_psi(blast_evalues, benchmark_results, png_file, evalue_psiblast, evalues[i])
+
+
+
+
+
     pylab.legend()
     pylab.savefig(png_file)
-    pylab.close()
 
-    pylab.figure()
-    pylab.xlabel('log E-values')
-    pylab.ylabel('AUC')
-    pylab.title('AUC vs E-values PSI-BLAST')
-    pylab.plot(numpy.log(evalues), auc_list)
-    pylab.savefig("auc-vs-evalue PSI-BLAST.png")
+
+
+    # ADDITIONAL CODE FOR AUC VS EVALUE PLOTS
+    # pylab.close()
+    #
+    # pylab.figure()
+    # pylab.xlabel('log E-values')
+    # pylab.ylabel('AUC')
+    # pylab.title('AUC vs E-values PSI-BLAST')
+    # pylab.plot(numpy.log(evalues), auc_list)
+    # pylab.savefig("auc-vs-evalue PSI-BLAST.png")
 
 
 
