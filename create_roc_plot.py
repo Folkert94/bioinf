@@ -92,7 +92,7 @@ def integrate(x, y):
     return auc
 
 
-def roc_plot(blast_evalues, benchmark_dict, png_filename, evalue_blast):
+def roc_plot(blast_evalues, benchmark_dict, png_filename, evalue_blast, threshold):
     """
     Draw the ROC plot for a given set of e-values and corresponding benchmark classifications.
 
@@ -123,9 +123,9 @@ def roc_plot(blast_evalues, benchmark_dict, png_filename, evalue_blast):
         if evalue > last_evalue:
             x.append(x[-1])
             y.append(y[-1])
-        if evalue <= 10 and benchmark_dict[protein_pair] == "different":
+        if evalue <= threshold and benchmark_dict[protein_pair] == "different":
             x[-1] = x[-1] + 1
-        if evalue <= 10 and benchmark_dict[protein_pair] == "similar":
+        if evalue <= threshold and benchmark_dict[protein_pair] == "similar":
             y[-1] = y[-1] + 1
             #########################
             ###  END CODING HERE  ###
@@ -147,6 +147,7 @@ def roc_plot(blast_evalues, benchmark_dict, png_filename, evalue_blast):
     with open(png_filename.split('.')[0] + '_xy.tsv','w') as f:
         for a,b in zip(x,y):
             f.write(str(a) + '\t' + str(b) + '\n')
+    return auc
 
 
 def main(blast_results_map, benchmark_results_file, png_file):
@@ -154,11 +155,11 @@ def main(blast_results_map, benchmark_results_file, png_file):
     pylab.plot([0,1],[0,1],'--k')
     pylab.xlabel('False Positive Rate')
     pylab.ylabel('True Positive Rate')
-    pylab.title('Plots PSI-BLAST')
+    pylab.title('Plots BLAST')
 
 
     evalues = [0.001, 0.01, 0.1, 1.0, 10.0, 100.0, 1000.0, 10000.0]
-
+    auc_list = []
     for i in range(8):
         evalue_blast = evalues[i]
         # Parse the input files and retrieve every protein pair's e-value and benchmark classification.
@@ -166,9 +167,18 @@ def main(blast_results_map, benchmark_results_file, png_file):
         benchmark_results = parse_benchmark_results(benchmark_results_file)
 
         # Draw and save the ROC plot
-        roc_plot(blast_evalues, benchmark_results, png_file, evalue_blast)
+        auc_list.append(roc_plot(blast_evalues, benchmark_results, png_file, evalue_blast, evalues[i]))
     pylab.legend()
     pylab.savefig(png_file)
+    pylab.close()
+
+    pylab.figure()
+    pylab.xlabel('log E-values')
+    pylab.ylabel('AUC')
+    pylab.title('AUC vs E-values PSI-BLAST')
+    pylab.plot(numpy.log(evalues), auc_list)
+    pylab.savefig("auc-vs-evalue PSI-BLAST.png")
+
 
 
 if __name__ == "__main__":
