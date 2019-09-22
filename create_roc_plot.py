@@ -140,11 +140,8 @@ def roc_plot(blast_evalues, benchmark_dict, png_filename):
 
     ### Draw the plot and write it to a file
     pylab.plot(x, y)
-    pylab.plot([0,1],[0,1],'--k')
-    pylab.xlabel('False Positive Rate')
-    pylab.ylabel('True Positive Rate')
-    pylab.title('AUC = %.3f' % auc)
-    pylab.savefig(png_filename)
+
+
 
     ### Write coordinates to a file
     with open(png_filename.split('.')[0] + '_xy.tsv','w') as f:
@@ -152,25 +149,32 @@ def roc_plot(blast_evalues, benchmark_dict, png_filename):
             f.write(str(a) + '\t' + str(b) + '\n')
 
 
-def main(blast_results_file, benchmark_results_file, png_file):
-    # Parse the input files and retrieve every protein pair's e-value and benchmark classification.
-    blast_evalues = parse_blast_results(blast_results_file)
-    benchmark_results = parse_benchmark_results(benchmark_results_file)
+def main(blast_results_map, benchmark_results_file, png_file):
+    plt.figure()
+    pylab.plot([0,1],[0,1],'--k')
+    pylab.xlabel('False Positive Rate')
+    pylab.ylabel('True Positive Rate')
+    pylab.title('Plots BLAST/PSI-BLAST')
+    for i in range(8):
+        # Parse the input files and retrieve every protein pair's e-value and benchmark classification.
+        blast_evalues = parse_blast_results("{0}/{0}{1}".format(blast_results_map, i))
+        benchmark_results = parse_benchmark_results(benchmark_results_file)
 
-    # Draw and save the ROC plot
-    roc_plot(blast_evalues, benchmark_results, png_file)
+        # Draw and save the ROC plot
+        roc_plot(blast_evalues, benchmark_results, png_file)
+    pylab.savefig(png_filename)
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Draw and save a ROC plot to a file")
-    parser.add_argument("-iblast","--input_blast_results", help="tab-separated BLAST results file", required=True)
+    parser.add_argument("-iblast","--input_blast_results", help="map with tab-separated (PSI-)BLAST results files", required=True)
     parser.add_argument("-ibench","--input_benchmark_results", help="tab-separated benchmark classification file", required=True)
     parser.add_argument("-o", "--output_png", help="output png file", required=True)
 
     args = parser.parse_args()
 
-    blast_file = args.input_blast_results
+    blast_results_map = args.input_blast_results
     benchmark_file = args.input_benchmark_results
     png_file = args.output_png
 
-    main(blast_file,benchmark_file, png_file)
+    main(blast_results_map,benchmark_file, png_file)
