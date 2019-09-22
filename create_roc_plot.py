@@ -92,7 +92,7 @@ def integrate(x, y):
     return auc
 
 
-def roc_plot(blast_evalues, benchmark_dict, png_filename):
+def roc_plot(blast_evalues, benchmark_dict, png_filename, evalue_blast):
     """
     Draw the ROC plot for a given set of e-values and corresponding benchmark classifications.
 
@@ -139,7 +139,7 @@ def roc_plot(blast_evalues, benchmark_dict, png_filename):
     auc = integrate(x, y)
 
     ### Draw the plot and write it to a file
-    pylab.plot(x, y)
+    pylab.plot(x, y, label="eval={0}, auc={1:.3f}".format(evalue_blast, auc))
 
 
 
@@ -150,19 +150,25 @@ def roc_plot(blast_evalues, benchmark_dict, png_filename):
 
 
 def main(blast_results_map, benchmark_results_file, png_file):
-    plt.figure()
+    pylab.figure()
     pylab.plot([0,1],[0,1],'--k')
     pylab.xlabel('False Positive Rate')
     pylab.ylabel('True Positive Rate')
-    pylab.title('Plots BLAST/PSI-BLAST')
+    pylab.title('Plots PSI-BLAST')
+
+
+    evalues = [0.001, 0.01, 0.1, 1.0, 10.0, 100.0, 1000.0, 10000.0]
+
     for i in range(8):
+        evalue_blast = evalues[i]
         # Parse the input files and retrieve every protein pair's e-value and benchmark classification.
         blast_evalues = parse_blast_results("{0}/{0}{1}".format(blast_results_map, i))
         benchmark_results = parse_benchmark_results(benchmark_results_file)
 
         # Draw and save the ROC plot
-        roc_plot(blast_evalues, benchmark_results, png_file)
-    pylab.savefig(png_filename)
+        roc_plot(blast_evalues, benchmark_results, png_file, evalue_blast)
+    pylab.legend()
+    pylab.savefig(png_file)
 
 
 if __name__ == "__main__":
