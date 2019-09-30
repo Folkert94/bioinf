@@ -23,20 +23,17 @@ def retrieve_scop_data(scop_file):
     # You can parse SCOP data in various ways. E.g. you can use dictionary of dictionaries
     # {proteinID: {"class": class, "fold": fold, "superfamily": superfamily, 'family': family}}
     scop_db = open(scop_file)
-    i = 0
     for line in scop_db:
-        if i > 3:
-            row = line.split()
-            temp = row[3].split(".")
-            scop_data[row[1]] = {"class": temp[0], "fold": temp[1], "superfamily": temp[2], "family": temp[3]}
-        i = i + 1
+        if "#" in line.split()[0]:
+            continue
+        row = line.split()
+        scop_data[row[1]] = [row[5]]
 
     # can possible contain just one pdb while there were more
     # print(scop_data["2bo9"])
     ########################
     ### END CODING HERE ####
     ########################
-
     return scop_data
 
 
@@ -135,58 +132,10 @@ def assign_homology(scop_dict, protein_ids_pdbs, pairs):
     ##########################
     # You should remember to take care about the proteins that are not in the SCOP database.
 
-    # NOTE TO SELF
-    # We ignore all the pairs that are not in the database as proposed by the assignment;
-    # Did add them to the dictionary.
-
-    # PIPELINE
-    # IF pair not in database -> N/A
-    # IF pair similar OR ambiguous -> dict
-    # ELSE pair different -> dict
 
     for pair in pairs:
-        # Match UniprotID to PDB ID
-        pdb_ids_1 = protein_ids_pdbs[pair[0]]
-        pdb_ids_2 = protein_ids_pdbs[pair[1]]
-        # print(pdb_ids_1, pdb_ids_2)
 
-        # Compute all pdb_id combinations
-        pair_combinations = []
-        for combination in itertools.product(pdb_ids_1, pdb_ids_2):
-            pair_combinations.append(combination)
-
-        # Check all against all in SCOP
-        for pair_combination in pair_combinations:
-            try:
-                combi_1 = scop_dict[pair_combination[0].lower()]
-            except:
-                if (pair[0], pair[1]) not in scop_homology:
-                    scop_homology[(pair[0], pair[1])] = "N/A"
-                continue
-
-            try:
-                combi_2 = scop_dict[pair_combination[1].lower()]
-            except:
-                if (pair[0], pair[1]) not in scop_homology:
-                    scop_homology[(pair[0], pair[1])] = "N/A"
-                continue
-
-    # TO DO
-    # THIS SHOULD BE IN check_similarity_for_protein_pair(prot1_scop, prot2_scop):
-
-            try:
-                if combi_1["superfamily"] is combi_2["superfamily"] and combi_1["class"] is combi_2["class"] and combi_1["fold"] is combi_2["fold"]:
-                    scop_homology[(pair[0], pair[1])] = "similar"
-                if combi_1["fold"] is combi_2["fold"] and combi_1["superfamily"] is not combi_2["superfamily"]:
-                    scop_homology[(pair[0], pair[1])] = "ambiguous"
-                    pass
-                else:
-                    if (pair[0], pair[1]) not in scop_homology or scop_homology[(pair[0], pair[1])] == "N/A":
-                        scop_homology[(pair[0], pair[1])] = "different"
-                    pass
-            except:
-                pass
-
+        pass
     ########################
     ### END CODING HERE ####
     ########################

@@ -12,7 +12,7 @@ matplotlib.use('AGG')
 import pylab
 
 
-def blast(db, query, evalue, query_folder="./queries/", psiblast=False):
+def blast(db, query, evalue, psiblast=False, query_folder="./queries/"):
     """
     This function executes blast or psi-blast for the given query and db.
     :param db: database filename
@@ -30,8 +30,7 @@ def blast(db, query, evalue, query_folder="./queries/", psiblast=False):
         # Note that it is is easier to parse the output if it is in tabular format.
         # For that use can use the option -outfmt '6 qacc sacc evalue'. (see https://www.ncbi.nlm.nih.gov/books/NBK279682/ )
         # To avoid the warning about composition based statistics, disable them with -comp_based_stats 0
-        print("yeah")
-        cmd = "psiblast -query {0}{1}.fasta -db {2} -outfmt '6 qacc sacc evalue' -num_iterations 10 -evalue {3}".format(query_folder, query, db, evalue)
+        cmd = "psiblast -query {0}{1}.fasta -db {2} -outfmt '6 qacc sacc evalue' -num_iterations 3 -evalue {3}".format(query_folder, query, db, evalue)
         ##########################
         ###  END CODING HERE  ####
         ##########################
@@ -134,38 +133,36 @@ def plot_evalue_distribution(blast_dict, png_filename, evalue=100000):
     ##########################
 
 
-def main(uniprot_id_file, query_folder, db, psiblast, output_filename, output_png):
-    evalue = np.linspace(0.01, 100, 100)
+def main(uniprot_id_file, query_folder, db, evalue, psiblast, output_filename, output_png):
 
-    for i in range(100):
-        # The blast_dict dictionary will be used to store protein pair and the corresponding e-value.
-        # Keys for blast_dict are the combination of query and subject/hit, e.g.:
-        # key             = (query, subject)
-        # blast_dict[key] = e_value
-        blast_dict = {}
-        # uniprot_id_list is a list to store all UniProt IDs contained in uniprot_id_file.
-        uniprot_id_list = []
-        print("Running blast for e-value {0}.".format(evalue[i]))
-        uniprot_ids = open(uniprot_id_file)
-        for line in uniprot_ids:
-            query = line.strip()
-            ##########################
-            ### START CODING HERE ####
-            ##########################
-            # Run (PSI-)BLAST for all query proteins.
-            # Store all the uniprot IDs in the uniprot_id_list.
-            # Parse and store the blast result in the blast_dict.
-            blast_result = blast(db, query, evalue[i])
-            uniprot_id_list.append(query)
-            parse_blast_result(blast_result, blast_dict)
+    # The blast_dict dictionary will be used to store protein pair and the corresponding e-value.
+    # Keys for blast_dict are the combination of query and subject/hit, e.g.:
+    # key             = (query, subject)
+    # blast_dict[key] = e_value
+    blast_dict = {}
+    # uniprot_id_list is a list to store all UniProt IDs contained in uniprot_id_file.
+    uniprot_id_list = []
+    print("Running blast for e-value {0}.".format(evalue))
+    uniprot_ids = open(uniprot_id_file)
+    for line in uniprot_ids:
+        query = line.strip()
+        ##########################
+        ### START CODING HERE ####
+        ##########################
+        # Run (PSI-)BLAST for all query proteins.
+        # Store all the uniprot IDs in the uniprot_id_list.
+        # Parse and store the blast result in the blast_dict.
+        blast_result = blast(db, query, evalue, psiblast)
+        uniprot_id_list.append(query)
+        parse_blast_result(blast_result, blast_dict)
 
-            ##########################
-            ###  END CODING HERE  ####
-            ##########################
-        output_filename1 = "{0}{1}".format(output_filename,i)
-        uniprot_ids.close()
-        write_output(uniprot_id_list, output_filename1, blast_dict)
-        # plot_evalue_distribution(blast_dict, "{0}{1}.png".format(output_png, i), evalue)
+        ##########################
+        ###  END CODING HERE  ####
+        ##########################
+    output_filename1 = "{0}{1}".format(output_filename, evalue)
+    uniprot_ids.close()
+    write_output(uniprot_id_list, output_filename1, blast_dict)
+    plot_evalue_distribution(blast_dict, "{0}{1}.png".format(output_png, evalue), evalue)
 
 
 if __name__ == "__main__":
@@ -173,6 +170,7 @@ if __name__ == "__main__":
     parser.add_argument("-ids", "--protein_ids_file", help="the list of UniProt IDs", required=True)
     parser.add_argument("-q", "--query_folder", help="the query folder", required=True)
     parser.add_argument("-db", "--db", help="the fasta file of the database", required=True)
+    parser.add_argument("-eval", "--evalue", help="the desired e-value, default is 10", default=10, required=False)
     parser.add_argument("-o", "--output_file", help="output file", required=True)
     parser.add_argument("-opng", "--output_png", help="output png file", default="DistributionEValue.png", required=False)
     parser.add_argument("-psi", "--psiblast", dest="psiblast", action="store_true", help="If flagged, run PSI-BLAST instead of BLASTP")
@@ -183,8 +181,9 @@ if __name__ == "__main__":
     uniprot_id_file = args.protein_ids_file
     query_folder = args.query_folder
     db = args.db
+    evalue =args.evalue
     psiblast = args.psiblast # True or False
     output_filename = args.output_file
     output_png = args.output_png
 
-    main(uniprot_id_file, query_folder, db, psiblast, output_filename, output_png)
+    main(uniprot_id_file, query_folder, db, evalue, psiblast, output_filename, output_png)
