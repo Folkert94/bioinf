@@ -93,7 +93,7 @@ def integrate(x, y):
    return auc
 
 
-def roc_plot(blast_evalues, benchmark_dict, png_filename, threshold):
+def roc_plot(blast_evalues, benchmark_dict, png_filename):
    """
    Draw the ROC plot for a given set of e-values and corresponding benchmark classifications.
    :param blast_evalues: the dictionary produced by parse_blast_results()
@@ -108,32 +108,40 @@ def roc_plot(blast_evalues, benchmark_dict, png_filename, threshold):
    last_evalue = -1
    evalues = [(v, k) for k, v in blast_evalues.items()] # List of tuples consisting of (evalue, protein_pair)
    sorted_evalues = sorted(evalues)
+   print(sorted_evalues[:100])
    for evalue, protein_pair in sorted_evalues:
 
-       #########################
-       ### START CODING HERE ###
-       #########################
-       # Iterate through the protein pairs, in order of ascending e-value
-       # Determine whether it is
-       #    different -> actual negative, thus a false positive (x)
-       #    similar   -> actual positive, thus a true positive (y)
-       # Increase the respective value and add a new coordinate for every unique e-value
-       # If the e-value is the same as the last one, only increase x or y of the last coordinate
-       # Ignore entries in the benchmark_dict classified as "ambiguous" and decide how to handle blast NA results
-       if evalue > last_evalue:
-           x.append(x[-1])
-           y.append(y[-1])
-       if evalue <= threshold and benchmark_dict[protein_pair] == "different":
-           x[-1] = x[-1] + 1
-           print(protein_pair, evalue, "different")
-       if evalue <= threshold and benchmark_dict[protein_pair] == "similar":
-           y[-1] = y[-1] + 1
-           print(protein_pair, evalue, "similar")
+        #########################
+        ### START CODING HERE ###
+        #########################
+        # Iterate through the protein pairs, in order of ascending e-value
+        # Determine whether it is
+        #    different -> actual negative, thus a false positive (x)
+        #    similar   -> actual positive, thus a true positive (y)
+        # Increase the respective value and add a new coordinate for every unique e-value
+        # If the e-value is the same as the last one, only increase x or y of the last coordinate
+        # Ignore entries in the benchmark_dict classified as "ambiguous" and decide how to handle blast NA results
+
+        if protein_pair not in benchmark_dict:
+           continue
+
+        if benchmark_dict[protein_pair] == "different":
+                if evalue == last_evalue:
+                    x[-1] += 1
+                else:
+                    x.append(x[-1] + 1)
+                    y.append(y[-1])
+        if benchmark_dict[protein_pair] == "similar":
+                if evalue == last_evalue:
+                    y[-1] += 1
+                else:
+                    x.append(x[-1])
+                    y.append(y[-1] + 1)
            #########################
            ###  END CODING HERE  ###
            #########################
 
-       last_evalue = evalue
+        last_evalue = evalue
    # In order to get the rates for every coordinate we divide by the total number (last entry)
    x = numpy.array(x) / float(x[-1])
    y = numpy.array(y) / float(y[-1])
@@ -161,7 +169,7 @@ def main(blast_results_file, benchmark_results_file, png_file):
    benchmark_results = parse_benchmark_results(benchmark_results_file)
 
    # Draw and save the ROC plot
-   roc_plot(blast_evalues, benchmark_results, png_file, evalue)
+   roc_plot(blast_evalues, benchmark_results, png_file)
 
 
 if __name__ == "__main__":
@@ -172,9 +180,7 @@ if __name__ == "__main__":
    parser.add_argument("-o", "--output_png", help="output png file", required=True)
 
    args = parser.parse_args()
-
    blast_file = args.input_blast_results
-   evalue = float(args.evalue)
    benchmark_file = args.input_benchmark_results
    png_file = args.output_png
 

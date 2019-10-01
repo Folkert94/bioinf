@@ -120,17 +120,25 @@ def roc_plot(blast_evalues, benchmark_dict, png_filename, evalue_blast, threshol
         # Increase the respective value and add a new coordinate for every unique e-value
         # If the e-value is the same as the last one, only increase x or y of the last coordinate
         # Ignore entries in the benchmark_dict classified as "ambiguous" and decide how to handle blast NA results
-        if evalue > last_evalue:
-            x.append(x[-1])
-            y.append(y[-1])
-        if evalue <= threshold and benchmark_dict[protein_pair] == "different":
-            x[-1] = x[-1] + 1
-        if evalue <= threshold and benchmark_dict[protein_pair] == "similar":
-            y[-1] = y[-1] + 1
+        if protein_pair not in benchmark_dict:
+           continue
+
+        if benchmark_dict[protein_pair] == "different":
+                if evalue == last_evalue:
+                    x[-1] += 1
+                else:
+                    x.append(x[-1] + 1)
+                    y.append(y[-1])
+        if benchmark_dict[protein_pair] == "similar":
+                if evalue == last_evalue:
+                    y[-1] += 1
+                else:
+                    x.append(x[-1])
+                    y.append(y[-1] + 1)
             #########################
             ###  END CODING HERE  ###
             #########################
-            last_evalue = evalue
+        last_evalue = evalue
     # In order to get the rates for every coordinate we divide by the total number (last entry)
     x = numpy.array(x) / float(x[-1])
     y = numpy.array(y) / float(y[-1])
@@ -176,17 +184,25 @@ def roc_plot_psi(blast_evalues, benchmark_dict, png_filename, evalue_blast, thre
         # Increase the respective value and add a new coordinate for every unique e-value
         # If the e-value is the same as the last one, only increase x or y of the last coordinate
         # Ignore entries in the benchmark_dict classified as "ambiguous" and decide how to handle blast NA results
-        if evalue > last_evalue:
-            x.append(x[-1])
-            y.append(y[-1])
-        if evalue <= threshold and benchmark_dict[protein_pair] == "different":
-            x[-1] = x[-1] + 1
-        if evalue <= threshold and benchmark_dict[protein_pair] == "similar":
-            y[-1] = y[-1] + 1
+        if protein_pair not in benchmark_dict:
+           continue
+
+        if benchmark_dict[protein_pair] == "different":
+                if evalue == last_evalue:
+                    x[-1] += 1
+                else:
+                    x.append(x[-1] + 1)
+                    y.append(y[-1])
+        if benchmark_dict[protein_pair] == "similar":
+                if evalue == last_evalue:
+                    y[-1] += 1
+                else:
+                    x.append(x[-1])
+                    y.append(y[-1] + 1)
             #########################
             ###  END CODING HERE  ###
             #########################
-            last_evalue = evalue
+        last_evalue = evalue
     # In order to get the rates for every coordinate we divide by the total number (last entry)
     x = numpy.array(x) / float(x[-1])
     y = numpy.array(y) / float(y[-1])
@@ -211,8 +227,8 @@ def main(blast_results_map, benchmark_results_file, png_file):
     pylab.ylabel('True Positive Rate')
     pylab.title('Plots BLAST/PSI-BLAST')
 
-    colors = ['r', 'b', 'g', 'c']
-    evalues = [0.1, 1.0, 10.0, 100.0]
+    colors = ['r', 'b', 'g', 'c', 'm', 'y']
+    evalues = [10.0, 1000.0, 1000000.0]
     auc_list = []
     for i in range(len(evalues)):
         evalue_blast = evalues[i]

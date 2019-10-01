@@ -67,11 +67,16 @@ def check_similarity_for_protein_pair(prot1_scop, prot2_scop):
     ##########################
     ### START CODING HERE ####
     ##########################
-
-
-
-    pass
-
+    data1 = prot1_scop.split(",")
+    data2 = prot2_scop.split(",")
+    prot1_f, prot1_sf, prot1_cf = data1[3].split("=")[1], data1[2].split("=")[1], data1[1].split("=")[1]
+    prot2_f, prot2_sf, prot2_cf = data2[3].split("=")[1], data2[2].split("=")[1], data2[1].split("=")[1]
+    if prot1_f == prot2_f:
+        return "similar"
+    if prot1_sf != prot2_sf and prot1_cf == prot2_cf:
+        return "ambiguous"
+    else:
+        return "different"
 
     ########################
     ### END CODING HERE ####
@@ -132,14 +137,17 @@ def assign_homology(scop_dict, protein_ids_pdbs, pairs):
     ##########################
     # You should remember to take care about the proteins that are not in the SCOP database.
 
-
     for pair in pairs:
-
-        pass
+        pdb1 = protein_ids_pdbs[pair[0]][0].lower()
+        pdb2 = protein_ids_pdbs[pair[1]][0].lower()
+        try:
+            sim_score = check_similarity_for_protein_pair(scop_dict[pdb1][0], scop_dict[pdb2][0])
+            scop_homology[(pair[0], pair[1])] = sim_score
+        except:
+            continue
     ########################
     ### END CODING HERE ####
     ########################
-
     return scop_homology
 
 
