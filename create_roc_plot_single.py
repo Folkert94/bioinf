@@ -108,7 +108,6 @@ def roc_plot(blast_evalues, benchmark_dict, png_filename):
    last_evalue = -1
    evalues = [(v, k) for k, v in blast_evalues.items()] # List of tuples consisting of (evalue, protein_pair)
    sorted_evalues = sorted(evalues)
-   print(sorted_evalues[:100])
    for evalue, protein_pair in sorted_evalues:
 
         #########################
