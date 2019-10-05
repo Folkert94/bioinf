@@ -1,8 +1,11 @@
 
-#!/usr/bin/python
+# Code Project group T20: Carlos, Folkert, Jurriaan, Lianne
+# Edited code for Fundamentals of Bioinformatics Project
 
 # This script reads and parses your previously obtained results out of a blast output file, and a benchmark output file.
 # It then creates the corresponding ROC plot, exports the coordinates and calculates the AUC.
+
+#!/usr/bin/python
 
 import argparse
 import numpy

@@ -1,7 +1,9 @@
-#!/usr/bin/python
 
+# Code Project group T20: Carlos, Folkert, Jurriaan, Lianne
+# Edited code for Fundamentals of Bioinformatics Project
 # This script runs the local version of (PSI-)BLAST.
 
+#!/usr/bin/python
 import argparse
 import subprocess
 import math
