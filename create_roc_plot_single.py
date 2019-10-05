@@ -108,7 +108,7 @@ def roc_plot(blast_evalues, benchmark_dict, png_filename):
    last_evalue = -1
    evalues = [(v, k) for k, v in blast_evalues.items()] # List of tuples consisting of (evalue, protein_pair)
    sorted_evalues = sorted(evalues)
-   for evalue, protein_pair in sorted_evalues:
+   for evalue, protein_pair in sorted_evalues[:100]:
 
         #########################
         ### START CODING HERE ###
@@ -125,12 +125,15 @@ def roc_plot(blast_evalues, benchmark_dict, png_filename):
            continue
 
         if benchmark_dict[protein_pair] == "different":
+                print(protein_pair, evalue, "diff")
                 if evalue == last_evalue:
                     x[-1] += 1
                 else:
                     x.append(x[-1] + 1)
                     y.append(y[-1])
+
         if benchmark_dict[protein_pair] == "similar":
+                print(protein_pair, evalue, "sim")
                 if evalue == last_evalue:
                     y[-1] += 1
                 else:

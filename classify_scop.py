@@ -71,7 +71,7 @@ def check_similarity_for_protein_pair(prot1_scop, prot2_scop):
     data2 = prot2_scop.split(",")
     prot1_f, prot1_sf, prot1_cf = data1[3].split("=")[1], data1[2].split("=")[1], data1[1].split("=")[1]
     prot2_f, prot2_sf, prot2_cf = data2[3].split("=")[1], data2[2].split("=")[1], data2[1].split("=")[1]
-    if prot1_f == prot2_f:
+    if prot1_f == prot2_f or prot1_sf == prot2_sf:
         return "similar"
     if prot1_sf != prot2_sf and prot1_cf == prot2_cf:
         return "ambiguous"
